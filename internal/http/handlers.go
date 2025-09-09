@@ -22,6 +22,9 @@ func NewHandlers(svc *service.OrderService, logger *zap.Logger) *Handlers {
 }
 
 func (h *Handlers) orderHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
 	orderUID := r.URL.Path[len("/orders/"):]
 	if orderUID == "" {
 		http.Error(w, "Order UID is missing", http.StatusBadRequest)
@@ -34,8 +37,6 @@ func (h *Handlers) orderHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Order not found", http.StatusNotFound)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewEncoder(w).Encode(order); err != nil {
 		h.logger.Error("Failed to encode response", zap.Error(err), zap.String("order_uid", orderUID))

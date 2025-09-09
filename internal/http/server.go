@@ -24,10 +24,9 @@ func NewServer(svc *service.OrderService, logger *zap.Logger) (*Server, error) {
 func (s *Server) Start(port int) {
 	mux := http.NewServeMux()
 
-	fs := http.FileServer(http.Dir("./web"))
-	mux.Handle("/", fs)
-
 	mux.HandleFunc("/orders/", s.handlers.orderHandler)
+
+	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./web"))))
 
 	s.logger.Info("Starting HTTP server", zap.Int("port", port))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux); err != nil {

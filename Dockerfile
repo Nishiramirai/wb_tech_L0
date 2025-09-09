@@ -18,6 +18,7 @@ WORKDIR /app
 
 COPY --from=builder /go-service .
 COPY --from=builder /app/configs ./configs
+COPY --from=builder /app/web ./web
 
 ENV GIN_MODE=release
 

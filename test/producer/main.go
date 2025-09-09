@@ -2,16 +2,26 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"log"
 	"time"
 
-	"github.com/segmentio/kafka-go"
-
 	"orders-service/internal/app/model"
+
+	"github.com/segmentio/kafka-go"
 )
 
+// generateUID generates a unique ID similar to the original example's format.
+func generateUID() string {
+	b := make([]byte, 8)
+	rand.Read(b)
+	return hex.EncodeToString(b) + "test"
+}
+
 func main() {
+	// Kafka broker configuration
 	brokers := []string{"kafka:29092"}
 	topic := "orders"
 
@@ -23,7 +33,7 @@ func main() {
 	defer w.Close()
 
 	testOrder := model.Order{
-		OrderUID:    "test-producer-" + time.Now().Format("20060102150405"),
+		OrderUID:    generateUID(),
 		TrackNumber: "WBILMTESTTRACK",
 		Entry:       "WBIL",
 		Delivery: model.Delivery{
@@ -37,6 +47,7 @@ func main() {
 		},
 		Payment: model.Payment{
 			Transaction:  "b563feb7b2b84b6test",
+			RequestID:    "", // Пустое, как в оригинале
 			Currency:     "USD",
 			Provider:     "wbpay",
 			Amount:       1817,
