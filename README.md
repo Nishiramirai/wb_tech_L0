@@ -43,8 +43,6 @@ wb-orders-service/
 ├── test/
 │   └── producer/
 │       └── main.go             # Тестовый producer для Kafka
-├── docs/
-│   └── tree.png                # Документация
 ├── docker-compose.yaml         # Docker Compose конфигурация
 ├── Dockerfile                  # Docker образ приложения
 ├── entrypoint.sh               # Скрипт запуска в контейнере
