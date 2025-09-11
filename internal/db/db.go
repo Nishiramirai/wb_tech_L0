@@ -38,6 +38,8 @@ func NewDB(connStr string) (*DB, error) {
 	return &DB{pool: dbPool}, nil
 }
 
+// Создает и возвращает строку подключения к Postgres формата:
+// "host=... port=... user=... password=... dbname=... sslmode=..."
 func CreateDBConnectionString(dbCfg configs.Database) string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.DBName, dbCfg.SSLMode)

@@ -15,6 +15,7 @@ type Cache struct {
 	maxSize int
 }
 
+// Создает кеш с указанным лимитом и заполняет его данными из БД
 func NewCache(ctx context.Context, db *db.DB, maxSize int) (*Cache, error) {
 	cache := &Cache{
 		orders:  make(map[string]*model.Order, maxSize),
@@ -29,6 +30,7 @@ func NewCache(ctx context.Context, db *db.DB, maxSize int) (*Cache, error) {
 	return cache, nil
 }
 
+// Заполняет кэш данными из БД
 func (c *Cache) PopulateFromDB(ctx context.Context) error {
 	orders, err := c.db.GetRecentOrders(ctx, c.maxSize)
 	if err != nil {
@@ -44,22 +46,29 @@ func (c *Cache) PopulateFromDB(ctx context.Context) error {
 	return nil
 }
 
+// Добавляет заказ в кэш
 func (c *Cache) AddOrder(order *model.Order) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if len(c.orders) >= c.maxSize {
-		for uid := range c.orders {
-			delete(c.orders, uid)
-			break
-		}
+		c.EvictElement()
 	}
 	c.orders[order.OrderUID] = order
 }
 
+// Возвращает структуру с заказом и булево значение, было ли что-то в кэше по переданному uid
 func (c *Cache) GetOrder(orderUID string) (*model.Order, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	order, ok := c.orders[orderUID]
 	return order, ok
+}
+
+// Удаляет случайный элемент из кэша. Лучше конечно сделать LRU кэш, но пока как есть
+func (c *Cache) EvictElement() {
+	for uid := range c.orders {
+		delete(c.orders, uid)
+		break
+	}
 }
