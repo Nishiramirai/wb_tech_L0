@@ -7,20 +7,20 @@ RUN go mod download
 
 COPY . .
 
-
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go-service ./cmd/main.go
 
 
+
 FROM alpine:3.18
+
 RUN apk add --no-cache netcat-openbsd
 
 WORKDIR /app
 
 COPY --from=builder /go-service .
-COPY --from=builder /app/configs ./configs
-COPY --from=builder /app/web ./web
 
-ENV GIN_MODE=release
+COPY --from=builder /app/internal/configs ./internal/configs
+COPY --from=builder /app/web ./web
 
 EXPOSE 8081
 

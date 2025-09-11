@@ -2,65 +2,99 @@ package configs
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
-	App      `yaml:"app"`
-	Kafka    `yaml:"kafka"`
-	Database `yaml:"database"`
+	App
+	Kafka
+	Database
 }
 
 type App struct {
-	Port      int `yaml:"port"`
-	CacheSize int `yaml:"cache_size"`
+	Port      int
+	CacheSize int
 }
 
 type Kafka struct {
-	Brokers []string `yaml:"brokers"`
-	Topic   string   `yaml:"topic"`
+	Brokers []string
+	Topic   string
 }
 
 type Database struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	DBName   string `yaml:"dbname"`
-	SSLMode  string `yaml:"sslmode"`
+	Host     string
+	Port     int
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
 }
 
 func NewConfig() (*AppConfig, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./configs")
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+	if err := godotenv.Load(); err != nil {
+		log.Println("Файл .env не найден. Используем переменные окружения напрямую.")
 	}
 
-	var config AppConfig
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
+	appPort, err := strconv.Atoi(os.Getenv("APP_PORT"))
+	if err != nil {
+		return nil, fmt.Errorf("APP_PORT не задана или не число: %w", err)
 	}
 
-	return &config, nil
-}
-
-func JoinBrokers(brokers []string) string {
-	var result string
-	for i, broker := range brokers {
-		result += broker
-		if i < len(brokers)-1 {
-			result += ","
-		}
+	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
+	if kafkaBrokers == "" {
+		return nil, fmt.Errorf("KAFKA_BROKERS не задана")
 	}
-	return result
-}
 
-func CreateDBConnectionString(dbCfg Database) string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.DBName, dbCfg.SSLMode)
+	kafkaTopic := os.Getenv("KAFKA_TOPIC")
+	if kafkaTopic == "" {
+		return nil, fmt.Errorf("KAFKA_TOPIC не задана")
+	}
+
+	dbHost := os.Getenv("POSTGRES_HOST")
+	if dbHost == "" {
+		return nil, fmt.Errorf("POSTGRES_HOST не задана")
+	}
+
+	dbPort, err := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
+	if err != nil {
+		return nil, fmt.Errorf("POSTGRES_PORT не задана или не число: %w", err)
+	}
+
+	dbUser := os.Getenv("POSTGRES_USER")
+	if dbUser == "" {
+		return nil, fmt.Errorf("POSTGRES_USER не задана")
+	}
+
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	if dbPassword == "" {
+		return nil, fmt.Errorf("POSTGRES_PASSWORD не задана")
+	}
+
+	dbName := os.Getenv("POSTGRES_DB")
+	if dbName == "" {
+		return nil, fmt.Errorf("POSTGRES_DB не задана")
+	}
+
+	return &AppConfig{
+		App: App{
+			Port: appPort,
+		},
+		Kafka: Kafka{
+			Brokers: strings.Split(kafkaBrokers, ","),
+			Topic:   kafkaTopic,
+		},
+		Database: Database{
+			Host:     dbHost,
+			Port:     dbPort,
+			User:     dbUser,
+			Password: dbPassword,
+			DBName:   dbName,
+			SSLMode:  "disable",
+		},
+	}, nil
 }

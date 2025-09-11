@@ -29,7 +29,7 @@ func main() {
 		logger.Fatal("Failed to load config", zap.Error(err))
 	}
 
-	connStr := configs.CreateDBConnectionString(cfg.Database)
+	connStr := db.CreateDBConnectionString(cfg.Database)
 	database, err := db.NewDB(connStr)
 	if err != nil {
 		logger.Fatal("Failed to connect to database", zap.Error(err))

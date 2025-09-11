@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"orders-service/internal/app/model"
+	"orders-service/internal/configs"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -35,6 +36,11 @@ func NewDB(connStr string) (*DB, error) {
 	}
 
 	return &DB{pool: dbPool}, nil
+}
+
+func CreateDBConnectionString(dbCfg configs.Database) string {
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		dbCfg.Host, dbCfg.Port, dbCfg.User, dbCfg.Password, dbCfg.DBName, dbCfg.SSLMode)
 }
 
 func (db *DB) Close() {

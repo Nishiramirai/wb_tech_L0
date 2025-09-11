@@ -1,14 +1,10 @@
-version: '3.8'
 
 services:
   db:
     image: postgres:15-alpine
     container_name: postgres_db
     restart: always
-    environment:
-      POSTGRES_USER: demo_user
-      POSTGRES_PASSWORD: demo_password
-      POSTGRES_DB: orders_db
+    env_file: .env
     ports:
       - "5432:5432"
     volumes:
@@ -41,30 +37,38 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       
+
   app:
     build: .
     container_name: go_app
     ports:
       - "8081:8081"
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
       kafka:
         condition: service_started
     restart: always
-    environment:
-      - GIN_MODE=release
 
   go-test-producer:
     build:
       context: .
       target: builder
     container_name: go-test-producer
+    env_file: .env
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     command: ["go", "run", "./test/producer/main.go"]
 
 volumes:
