@@ -17,39 +17,39 @@
 ```
 wb-orders-service/
 ├── cmd/
-│   └── main.go                 # Точка входа приложения
+│   └── main.go                 
 ├── internal/
 │   ├── app/
 │   │   ├── model/
-│   │   │   └── models.go       # Модели данных (структуры)
+│   │   │   └── models.go       
 │   │   └── service/
-│   │       └── service.go      # Бизнес-логика приложения
+│   │       └── service.go      
 │   ├── cache/
-│   │   └── cache.go            # In-memory кэш заказов
+│   │   └── cache.go            
 │   ├── configs/
-│   │   └── config.go           # Конфигурация приложения
+│   │   └── config.go           
 │   ├── db/
-│   │   └── db.go               # Работа с PostgreSQL
+│   │   └── db.go               
 │   ├── http/
-│   │   ├── handlers.go         # HTTP обработчики
-│   │   └── server.go           # HTTP сервер
+│   │   ├── handlers.go         
+│   │   └── server.go           
 │   └── kafka/
-│       └── consumer.go         # Kafka consumer
+│       └── consumer.go         
 ├── migrations/
-│   ├── 000001_create_orders_tables.up.sql    # Миграция БД (создание)
-│   └── 000001_create_orders_tables.down.sql  # Миграция БД (удаление)
+│   ├── 000001_create_orders_tables.up.sql    
+│   └── 000001_create_orders_tables.down.sql  
 ├── web/
-│   └── index.html              # Веб-интерфейс
+│   └── index.html              
 ├── test/
 │   └── producer/
 │       └── main.go             # Тестовый producer для Kafka
-├── docker-compose.yaml         # Docker Compose конфигурация
-├── Dockerfile                  # Docker образ приложения
+├── docker-compose.yaml         
+├── Dockerfile                  
 ├── entrypoint.sh               # Скрипт запуска в контейнере
-├── Makefile                    # Управление проектом
-├── go.mod                      # Go модули
-├── go.sum                      # Go зависимости
-└── README.md                   # Документация проекта
+├── Makefile                    
+├── go.mod                      
+├── go.sum                      
+└── README.md                   
 ```
 
 ## Запуск
