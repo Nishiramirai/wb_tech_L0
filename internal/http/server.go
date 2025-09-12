@@ -1,6 +1,8 @@
 package http
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -10,8 +12,9 @@ import (
 )
 
 type Server struct {
-	handlers *Handlers
-	logger   *zap.Logger
+	handlers   *Handlers
+	logger     *zap.Logger
+	httpServer *http.Server
 }
 
 func NewServer(svc *service.OrderService, logger *zap.Logger) (*Server, error) {
@@ -28,8 +31,18 @@ func (s *Server) Start(port int) {
 
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./web"))))
 
+	s.httpServer = &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
+
 	s.logger.Info("Starting HTTP server", zap.Int("port", port))
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux); err != nil {
+	if err := s.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		s.logger.Fatal("Failed to start HTTP server", zap.Error(err))
 	}
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.logger.Info("Shutting down HTTP server...")
+	return s.httpServer.Shutdown(ctx)
 }
