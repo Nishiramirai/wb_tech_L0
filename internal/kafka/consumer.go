@@ -21,11 +21,12 @@ type Consumer struct {
 	logger  *zap.Logger
 }
 
+// Инициализирует и возвращает kafka.Reader
 func NewConsumer(cfg *configs.AppConfig, svc *service.OrderService, logger *zap.Logger) (*Consumer, error) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:     cfg.Kafka.Brokers,
 		Topic:       cfg.Kafka.Topic,
-		GroupID:     "order-service",
+		GroupID:     cfg.Kafka.GroupID,
 		StartOffset: kafka.FirstOffset,
 	})
 
@@ -40,6 +41,7 @@ func (c *Consumer) Close() error {
 	return c.reader.Close()
 }
 
+// Слушает сообщения из Kafka, соответственно занимает горутину. Завершается с помощью graceful shutdown
 func (c *Consumer) Start(ctx context.Context) {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)

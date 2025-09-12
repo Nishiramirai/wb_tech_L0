@@ -57,7 +57,7 @@ func (c *Cache) AddOrder(order *model.Order) {
 	c.orders[order.OrderUID] = order
 }
 
-// Возвращает структуру с заказом и булево значение, было ли что-то в кэше по переданному uid
+// Возвращает структуру с заказом и bool, было ли что-то в кэше по переданному uid
 func (c *Cache) GetOrder(orderUID string) (*model.Order, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -65,8 +65,9 @@ func (c *Cache) GetOrder(orderUID string) (*model.Order, bool) {
 	return order, ok
 }
 
-// Удаляет случайный элемент из кэша. Лучше конечно сделать LRU кэш, но пока как есть
+// Удаляет элемент из кэша
 func (c *Cache) EvictElement() {
+	// Лучше конечно сделать LRU кэш, но пока как есть
 	for uid := range c.orders {
 		delete(c.orders, uid)
 		break

@@ -68,6 +68,7 @@ wb-orders-service/
 
     KAFKA_BROKERS=kafka:29092
     KAFKA_TOPIC=orders
+    KAFKA_GROUP_ID=order-service-group
 
     POSTGRES_USER=demo_user
     POSTGRES_PASSWORD=demo_password

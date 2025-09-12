@@ -24,6 +24,7 @@ type App struct {
 type Kafka struct {
 	Brokers []string
 	Topic   string
+	GroupID string
 }
 
 type Database struct {
@@ -61,6 +62,11 @@ func NewConfig(logger *zap.Logger) (*AppConfig, error) {
 		return nil, fmt.Errorf("KAFKA_TOPIC is not defined")
 	}
 
+	kafkaGroupID := os.Getenv("KAFKA_GROUP_ID")
+	if kafkaGroupID == "" {
+		return nil, fmt.Errorf("KAFKA_GROUP_ID is not defined")
+	}
+
 	dbHost := os.Getenv("POSTGRES_HOST")
 	if dbHost == "" {
 		return nil, fmt.Errorf("POSTGRES_HOST is not defined")
@@ -94,6 +100,7 @@ func NewConfig(logger *zap.Logger) (*AppConfig, error) {
 		Kafka: Kafka{
 			Brokers: strings.Split(kafkaBrokers, ","),
 			Topic:   kafkaTopic,
+			GroupID: kafkaGroupID,
 		},
 		Database: Database{
 			Host:     dbHost,

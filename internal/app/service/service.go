@@ -42,7 +42,7 @@ func (s *OrderService) GetOrder(ctx context.Context, orderUID string) (*model.Or
 
 	order, err := s.db.GetOrder(ctx, orderUID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting order frob db: %w", err)
 	}
 
 	s.cache.AddOrder(order)
@@ -50,6 +50,7 @@ func (s *OrderService) GetOrder(ctx context.Context, orderUID string) (*model.Or
 	return order, nil
 }
 
+// Возвращает ошибку, если в заказе нет какого-либо существенного поля
 func (s *OrderService) validateOrder(order *model.Order) error {
 	if order.OrderUID == "" {
 		return fmt.Errorf("order_uid cannot be empty")
