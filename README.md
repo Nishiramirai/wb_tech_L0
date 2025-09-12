@@ -42,10 +42,10 @@ wb-orders-service/
 │   └── index.html              
 ├── test/
 │   └── producer/
-│       └── main.go             # Тестовый producer для Kafka
+│       └── main.go             
 ├── docker-compose.yaml         
 ├── Dockerfile                  
-├── entrypoint.sh               # Скрипт запуска в контейнере
+├── entrypoint.sh              
 ├── Makefile                    
 ├── go.mod                      
 ├── go.sum                      
